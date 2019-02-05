@@ -21,11 +21,7 @@ object KMeansTest {
     val conf = new SparkConf().setAppName("SparkDFebay").setMaster("local")
     val sc = new SparkContext(conf)
     val sqlContext = new SQLContext(sc)
-//    val spark = SparkSession
-//      .builder()
-//      .config(conf)
-//      .master("local")
-//      .getOrCreate()
+
     val spark = SparkSession.builder().master("local[2]").getOrCreate()
     val file="D:/code/flink-training-exercises-master/PowerModDataForKmeans/1"
    //   val rawData = sc.textFile("D:/code/flink-training-exercises-master/PowerModDataForKmeans/1")
