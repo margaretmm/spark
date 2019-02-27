@@ -3,7 +3,7 @@ package spark.ML.LR
 import org.apache.spark.ml.feature.{StringIndexer, VectorAssembler}
 import org.apache.spark.ml.regression.{LinearRegression, LinearRegressionModel}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.{DataFrame, SQLContext}
 import org.apache.spark.{SparkConf, SparkContext}
 
 object EnergyModLR {
@@ -37,17 +37,19 @@ object EnergyModLR {
 //    creditDF.show
 
     val featureCols = Array( "T2", "T3", "T4","T5")
+    LinearRegression(EnergyDF,featureCols,"T1","./model/spark-LR-model-energy")
+   }
+
+  def LinearRegression(df:DataFrame,featureCols:Array[String], label:String,modPath:String): Unit ={
+
     val assembler = new VectorAssembler().setInputCols(featureCols).setOutputCol("features")
-    val df2 = assembler.transform(EnergyDF)
+    val df2 = assembler.transform(df)
     df2.show
 
-//    val labelIndexer = new StringIndexer().setInputCol("T1").setOutputCol("label")
-//    val df3 = labelIndexer.fit(df2).transform(df2)
-//    df3.show
     val splitSeed = 5043
     val Array(trainingData, testData) = df2.randomSplit(Array(0.7, 0.3), splitSeed)
 
-    val classifier = new LinearRegression().setFeaturesCol("features").setLabelCol("T1").setFitIntercept(true).setMaxIter(10).setRegParam(0.3).setElasticNetParam(0.8)
+    val classifier = new LinearRegression().setFeaturesCol("features").setLabelCol(label).setFitIntercept(true).setMaxIter(10).setRegParam(0.3).setElasticNetParam(0.8)
     val model = classifier.fit(trainingData)
 
     // 输出模型全部参数
@@ -66,9 +68,9 @@ object EnergyModLR {
     //val predictions = model.transform(testData)
     if (rmse <0.3) {
       try {
-        model.write.overwrite().save("./model/spark-LR-model-energy")
+        model.write.overwrite().save(modPath)//"./model/spark-LR-model-energy")
 
-        val sameModel = LinearRegressionModel.load("./model/spark-LR-model-energy")
+        val sameModel = LinearRegressionModel.load(modPath)//"./model/spark-LR-model-energy")
         val predictions= sameModel.transform(testData)
 
         predictions.show(3)
@@ -77,5 +79,5 @@ object EnergyModLR {
         case ex: Throwable => println("found a unknown exception" + ex)
       }
     }
-   }
+  }
 }

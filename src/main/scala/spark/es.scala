@@ -40,9 +40,6 @@ object es {
 //    val ModelInfo =Map("modelName" -> sdf.format(now),"version" -> "v1.1" ,"accuracy"->accuracy ,"url"-> "/home/model/bankMarket")
 //    var rdd = sc.makeRDD(Seq(ModelInfo))
 //    EsSpark.saveToEs(rdd,"bank_market_model/rf")
-
-
-
     sc.stop()
   }
 
